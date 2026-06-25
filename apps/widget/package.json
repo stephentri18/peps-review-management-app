@@ -1,0 +1,19 @@
+{
+  "name": "widget",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev":            "tsx watch esbuild.config.ts",
+    "build":          "tsx esbuild.config.ts",
+    "typecheck":      "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit"
+  },
+  "dependencies": {
+    "@reviews/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.21.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

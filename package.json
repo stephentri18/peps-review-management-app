@@ -1,0 +1,16 @@
+{
+  "name": "reviews-app",
+  "private": true,
+  "scripts": {
+    "dev:backend":  "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:widget":   "pnpm --filter widget dev",
+    "build":        "turbo run build",
+    "typecheck":    "turbo run typecheck",
+    "lint":         "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0"
+  }
+}
