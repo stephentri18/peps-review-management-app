@@ -1,10 +1,6 @@
 import type { ReviewsListResponse, AggregateRating } from '@reviews/types';
 import type { WidgetConfig, UploadedMedia } from './types.js';
 
-// Sent on every request so ngrok's free-tier browser-warning interstitial
-// is skipped and the real JSON response comes back (no effect on real hosts).
-const SKIP_NGROK_WARNING = { 'ngrok-skip-browser-warning': 'true' };
-
 export async function fetchReviews(
   config: WidgetConfig,
   page: number = 1
@@ -15,7 +11,7 @@ export async function fetchReviews(
   url.searchParams.set('per_page', String(config.reviewsPerPage));
 
   const res = await fetch(url.toString(), {
-    headers: { 'x-api-key': config.apiKey, ...SKIP_NGROK_WARNING },
+    headers: { 'x-api-key': config.apiKey },
   });
   if (!res.ok) throw new Error('Failed to fetch reviews');
   return res.json() as Promise<ReviewsListResponse>;
@@ -26,7 +22,7 @@ export async function fetchAggregate(config: WidgetConfig): Promise<AggregateRat
   url.searchParams.set('product_id', config.productId);
 
   const res = await fetch(url.toString(), {
-    headers: { 'x-api-key': config.apiKey, ...SKIP_NGROK_WARNING },
+    headers: { 'x-api-key': config.apiKey },
   });
   if (!res.ok) throw new Error('Failed to fetch aggregate');
   return res.json() as Promise<AggregateRating>;
@@ -48,7 +44,6 @@ export async function submitReview(
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': config.apiKey,
-      ...SKIP_NGROK_WARNING,
     },
     body: JSON.stringify({
       product_id:     config.productId,
@@ -73,7 +68,7 @@ export async function getUploadSignature(config: WidgetConfig): Promise<{
 }> {
   const res = await fetch(`${config.apiBase}/api/upload/sign`, {
     method: 'POST',
-    headers: { 'x-api-key': config.apiKey, ...SKIP_NGROK_WARNING },
+    headers: { 'x-api-key': config.apiKey },
   });
   if (!res.ok) throw new Error('Failed to get upload signature');
   return res.json();
@@ -89,7 +84,6 @@ export async function voteHelpful(
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': config.apiKey,
-      ...SKIP_NGROK_WARNING,
     },
     body: JSON.stringify({ vote }),
   });
