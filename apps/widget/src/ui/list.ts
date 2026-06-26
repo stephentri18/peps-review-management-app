@@ -3,6 +3,7 @@ import type { WidgetConfig } from '../types.js';
 import { fetchReviews } from '../api.js';
 import { escHtml, formatDate, staticStarsHtml } from '../utils.js';
 import { voteHelpful } from '../api.js';
+import { icons } from './icons.js';
 
 interface ListState {
   loading: boolean;
@@ -43,8 +44,8 @@ export function createReviewsList(
     if (state.loading) {
       el.insertAdjacentHTML('beforeend', `
         <div class="rv-list__state">
-          <div class="rv-list__state-icon">⏳</div>
-          <div>Loading reviews...</div>
+          <div class="rv-spinner" style="margin-bottom:14px"></div>
+          <div>Loading reviews…</div>
         </div>
       `);
       return;
@@ -53,7 +54,7 @@ export function createReviewsList(
     if (state.error) {
       el.insertAdjacentHTML('beforeend', `
         <div class="rv-list__state">
-          <div class="rv-list__state-icon">⚠️</div>
+          <div class="rv-list__state-icon">${icons.alert(22)}</div>
           <div>${escHtml(state.error)}</div>
         </div>
       `);
@@ -63,7 +64,7 @@ export function createReviewsList(
     if (state.reviews.length === 0) {
       el.insertAdjacentHTML('beforeend', `
         <div class="rv-list__state">
-          <div class="rv-list__state-icon">💬</div>
+          <div class="rv-list__state-icon">${icons.chat(22)}</div>
           <div>No reviews yet. Be the first!</div>
         </div>
       `);
@@ -124,7 +125,7 @@ function createReviewCard(review: ReviewWithMedia, config: WidgetConfig): HTMLEl
   info.innerHTML = `
     <span class="rv-review__name">${escHtml(review.reviewer_name)}</span>
     <span class="rv-review__date">${formatDate(review.created_at)}</span>
-    ${review.verified_purchase ? '<span class="rv-review__verified">✓ Verified Purchase</span>' : ''}
+    ${review.verified_purchase ? `<span class="rv-review__verified">${icons.check(13)} Verified Purchase</span>` : ''}
   `;
 
   const starsEl = document.createElement('div');
@@ -183,11 +184,11 @@ function createReviewCard(review: ReviewWithMedia, config: WidgetConfig): HTMLEl
 
   const helpfulBtn = document.createElement('button');
   helpfulBtn.className = 'rv-vote-btn';
-  helpfulBtn.innerHTML = `👍 Helpful${review.helpful_count > 0 ? ` (${review.helpful_count})` : ''}`;
+  helpfulBtn.innerHTML = `${icons.thumbsUp(14)} Helpful${review.helpful_count > 0 ? ` (${review.helpful_count})` : ''}`;
   helpfulBtn.addEventListener('click', async () => {
     helpfulBtn.disabled = true;
     await voteHelpful(config, review.id, 'helpful').catch(() => null);
-    helpfulBtn.innerHTML = `👍 Thanks!`;
+    helpfulBtn.innerHTML = `${icons.check(14)} Thanks!`;
   });
 
   footer.appendChild(helpfulBtn);
@@ -216,7 +217,7 @@ function createPagination(
 
   const prev = document.createElement('button');
   prev.className = 'rv-btn rv-btn--ghost rv-btn--sm';
-  prev.textContent = '← Prev';
+  prev.innerHTML = `${icons.chevronLeft(15)} Prev`;
   prev.disabled = state.page <= 1;
   prev.addEventListener('click', () => onPage(state.page - 1));
 
@@ -226,7 +227,7 @@ function createPagination(
 
   const next = document.createElement('button');
   next.className = 'rv-btn rv-btn--ghost rv-btn--sm';
-  next.textContent = 'Next →';
+  next.innerHTML = `Next ${icons.chevronRight(15)}`;
   next.disabled = state.page >= state.total_pages;
   next.addEventListener('click', () => onPage(state.page + 1));
 
@@ -259,7 +260,7 @@ function openLightbox(url: string, type: 'image' | 'video') {
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'rv-lightbox__close';
-  closeBtn.innerHTML = '✕';
+  closeBtn.innerHTML = icons.x(18);
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     document.body.removeChild(overlay);

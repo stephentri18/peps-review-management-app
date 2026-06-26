@@ -3,6 +3,7 @@ import { Modal }         from '../ui/Modal.js';
 import { StatusBadge }   from '../ui/Badge.js';
 import { StarDisplay }   from '../ui/StarDisplay.js';
 import { Spinner }       from '../ui/Spinner.js';
+import { Icon }          from '../ui/Icon.js';
 import { useReview, useUpdateReviewStatus, useUpsertReply, useDeleteReview } from '../../hooks/useReviews.js';
 import type { ReviewStatus } from '@reviews/types';
 
@@ -48,15 +49,17 @@ export function ReviewDetailModal({ reviewId, onClose }: Props) {
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="font-semibold text-gray-900">{review.reviewer_name}</span>
+                <div className="mb-1 flex flex-wrap items-center gap-2.5">
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">{review.reviewer_name}</span>
                   <StatusBadge status={review.status} />
                   {review.verified_purchase && (
-                    <span className="text-xs text-emerald-600 font-medium">✓ Verified</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      <Icon name="verified" size={14} /> Verified
+                    </span>
                   )}
                 </div>
-                <div className="text-sm text-gray-500">{review.reviewer_email}</div>
-                <div className="text-xs text-gray-400 mt-0.5">
+                <div className="text-sm text-neutral-500 dark:text-neutral-400">{review.reviewer_email}</div>
+                <div className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
                   {new Date(review.created_at).toLocaleDateString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric',
                   })}
@@ -66,23 +69,23 @@ export function ReviewDetailModal({ reviewId, onClose }: Props) {
             </div>
 
             {/* Product */}
-            <div className="bg-gray-50 rounded-lg px-4 py-3 text-sm">
-              <span className="text-gray-500">Product: </span>
-              <span className="font-medium text-gray-800">
+            <div className="rounded-xl bg-neutral-50 px-4 py-3 text-sm dark:bg-neutral-800/60">
+              <span className="text-neutral-500 dark:text-neutral-400">Product: </span>
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">
                 {review.product_title ?? review.product_id}
               </span>
             </div>
 
             {/* Review text */}
             {review.title && (
-              <div className="font-semibold text-gray-900">{review.title}</div>
+              <div className="font-semibold text-neutral-900 dark:text-neutral-100">{review.title}</div>
             )}
-            <p className="text-gray-700 leading-relaxed">{review.body}</p>
+            <p className="leading-relaxed text-neutral-700 dark:text-neutral-300">{review.body}</p>
 
             {/* Media */}
             {review.media?.length > 0 && (
               <div>
-                <div className="text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Attachments ({review.media.length})
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -90,12 +93,12 @@ export function ReviewDetailModal({ reviewId, onClose }: Props) {
                     <button
                       key={m.id}
                       onClick={() => setLightbox(m.url)}
-                      className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 hover:opacity-80 transition-opacity flex-shrink-0"
+                      className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-neutral-200 transition hover:opacity-80 dark:border-neutral-700"
                     >
                       {m.type === 'image' ? (
-                        <img src={m.url} alt="" className="w-full h-full object-cover" />
+                        <img src={m.url} alt="" className="h-full w-full object-cover" />
                       ) : (
-                        <video src={m.thumbnail_url ?? m.url} className="w-full h-full object-cover" muted />
+                        <video src={m.thumbnail_url ?? m.url} className="h-full w-full object-cover" muted />
                       )}
                     </button>
                   ))}
@@ -105,69 +108,67 @@ export function ReviewDetailModal({ reviewId, onClose }: Props) {
 
             {/* Existing reply */}
             {review.reply && (
-              <div className="border-l-4 border-slate-800 bg-slate-50 px-4 py-3 rounded-r-lg">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">
+              <div className="rounded-r-xl border-l-2 border-brand-500 bg-brand-50/50 px-4 py-3 dark:bg-brand-500/10">
+                <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">
                   Store Response
                 </div>
-                <p className="text-sm text-gray-700">{review.reply.body}</p>
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">{review.reply.body}</p>
               </div>
             )}
 
             {/* Reply input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {review.reply ? 'Update Reply' : 'Post a Reply'}
-              </label>
+              <label className="label">{review.reply ? 'Update Reply' : 'Post a Reply'}</label>
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Write your response to this review..."
+                placeholder="Write your response to this review…"
                 rows={3}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 resize-none"
+                className="input resize-none"
               />
               <button
                 onClick={handleReply}
                 disabled={!replyText.trim() || upsertReply.isPending}
-                className="mt-2 px-4 py-2 bg-slate-800 text-white text-sm rounded-lg hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                className="btn-primary mt-2"
               >
-                {upsertReply.isPending ? 'Saving...' : 'Save Reply'}
+                {upsertReply.isPending ? 'Saving…' : 'Save Reply'}
               </button>
             </div>
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-2 pt-2 border-t">
+            <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
               {review.status !== 'published' && (
                 <button
                   onClick={() => handleStatus('published')}
                   disabled={updateStatus.isPending}
-                  className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
                 >
-                  ✓ Publish
+                  <Icon name="check" size={16} /> Publish
                 </button>
               )}
               {review.status !== 'rejected' && (
                 <button
                   onClick={() => handleStatus('rejected')}
                   disabled={updateStatus.isPending}
-                  className="px-4 py-2 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
                 >
-                  ✕ Reject
+                  <Icon name="x" size={16} /> Reject
                 </button>
               )}
               {review.status !== 'pending' && (
                 <button
                   onClick={() => handleStatus('pending')}
                   disabled={updateStatus.isPending}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
                 >
-                  ↩ Reset to Pending
+                  <Icon name="refresh" size={16} /> Reset to Pending
                 </button>
               )}
               <button
                 onClick={handleDelete}
-                className="ml-auto px-4 py-2 text-red-600 text-sm hover:underline"
+                className="ml-auto inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-rose-600 transition hover:text-rose-700"
               >
-                Delete Review
+                <Icon name="trash" size={16} /> Delete
               </button>
             </div>
           </div>
@@ -177,20 +178,21 @@ export function ReviewDetailModal({ reviewId, onClose }: Props) {
       {/* Lightbox */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-neutral-900/90 p-4 animate-fade-in"
           onClick={() => setLightbox(null)}
         >
           <img
             src={lightbox}
             alt="Review media"
-            className="max-w-full max-h-full object-contain rounded"
+            className="max-h-full max-w-full rounded-xl object-contain"
             onClick={(e) => e.stopPropagation()}
           />
           <button
             onClick={() => setLightbox(null)}
-            className="absolute top-4 right-4 text-white text-2xl"
+            aria-label="Close"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
           >
-            ✕
+            <Icon name="x" size={20} />
           </button>
         </div>
       )}

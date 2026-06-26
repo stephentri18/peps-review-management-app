@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client.js';
 import { useAuthStore } from '../store/authStore.js';
+import { Icon } from '../components/ui/Icon.js';
 import type { AdminUser } from '@reviews/types';
 
 export function Login() {
@@ -32,57 +33,66 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-3">⭐</div>
-          <h1 className="text-2xl font-bold text-gray-900">Reviews Manager</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to your dashboard</p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-neutral-50 p-4 dark:bg-neutral-950">
+      {/* Ambient background accents */}
+      <div className="pointer-events-none absolute -top-32 -right-24 h-96 w-96 rounded-full bg-brand-200/40 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-violet-200/30 blur-3xl" />
+
+      <div className="relative w-full max-w-sm animate-fade-in-up">
+        {/* Brand */}
+        <div className="mb-8 text-center">
+          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-lg">
+            <Icon name="star" size={26} fill="currentColor" strokeWidth={0} />
+          </span>
+          <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+            Welcome back
+          </h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Sign in to your dashboard</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="card space-y-5 p-7 shadow-md"
+        >
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+            <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400">
+              <Icon name="x" size={16} />
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Email
-            </label>
+            <label className="label">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@reviewsapp.com"
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+              className="input"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Password
-            </label>
+            <label className="label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+              className="input"
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-700 disabled:opacity-50 transition-colors"
-          >
-            {loading ? 'Signing in...' : 'Sign in'}
+          <button type="submit" disabled={loading} className="btn-primary w-full">
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-xs text-neutral-400 dark:text-neutral-500">
+          Reviews Management Dashboard
+        </p>
       </div>
     </div>
   );

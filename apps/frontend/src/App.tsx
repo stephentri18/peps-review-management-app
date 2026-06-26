@@ -5,7 +5,6 @@ import { Login } from './pages/Login';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Reviews } from './pages/Reviews';
-import { Analytics } from './pages/Analytics';
 import { Stores } from './pages/Stores';
 import { Settings } from './pages/Settings';
 
@@ -40,7 +39,6 @@ export default function App() {
             <Route index         element={<Dashboard />} />
             <Route path="reviews"   element={<Reviews />} />
             <Route path="stores"    element={<Stores />} />
-            <Route path="analytics" element={<Analytics />} />
             <Route path="settings"  element={<Settings />} />
           </Route>
         </Routes>

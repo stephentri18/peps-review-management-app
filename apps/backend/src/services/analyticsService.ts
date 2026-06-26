@@ -93,10 +93,10 @@ export const analyticsService = {
         DATE_TRUNC(${trunc}, created_at)::DATE::TEXT AS date,
         COUNT(*) AS count
       FROM reviews
-      WHERE created_at >= NOW() - (${days} || ' days')::INTERVAL
+      WHERE created_at >= NOW() - make_interval(days => ${days})
         ${storeFilter}
-      GROUP BY DATE_TRUNC(${trunc}, created_at)
-      ORDER BY date ASC
+      GROUP BY 1
+      ORDER BY 1 ASC
     `;
 
     return rows.map((r) => ({

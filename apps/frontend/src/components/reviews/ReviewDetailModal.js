@@ -1,0 +1,37 @@
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { useState } from 'react';
+import { Modal } from '../ui/Modal.js';
+import { StatusBadge } from '../ui/Badge.js';
+import { StarDisplay } from '../ui/StarDisplay.js';
+import { Spinner } from '../ui/Spinner.js';
+import { Icon } from '../ui/Icon.js';
+import { useReview, useUpdateReviewStatus, useUpsertReply, useDeleteReview } from '../../hooks/useReviews.js';
+export function ReviewDetailModal({ reviewId, onClose }) {
+    const [replyText, setReplyText] = useState('');
+    const [lightbox, setLightbox] = useState(null);
+    const { data: review, isLoading } = useReview(reviewId ?? '');
+    const updateStatus = useUpdateReviewStatus();
+    const upsertReply = useUpsertReply();
+    const deleteReview = useDeleteReview();
+    if (!reviewId)
+        return null;
+    const handleStatus = async (status) => {
+        await updateStatus.mutateAsync({ id: reviewId, status });
+    };
+    const handleReply = async () => {
+        if (!replyText.trim())
+            return;
+        await upsertReply.mutateAsync({ id: reviewId, body: replyText.trim() });
+        setReplyText('');
+    };
+    const handleDelete = async () => {
+        if (!confirm('Delete this review? This cannot be undone.'))
+            return;
+        await deleteReview.mutateAsync(reviewId);
+        onClose();
+    };
+    return (_jsxs(_Fragment, { children: [_jsx(Modal, { open: !!reviewId, onClose: onClose, title: "Review Detail", size: "xl", children: isLoading ? (_jsx("div", { className: "flex justify-center py-10", children: _jsx(Spinner, {}) })) : review ? (_jsxs("div", { className: "space-y-6", children: [_jsxs("div", { className: "flex items-start justify-between gap-4", children: [_jsxs("div", { children: [_jsxs("div", { className: "mb-1 flex flex-wrap items-center gap-2.5", children: [_jsx("span", { className: "font-semibold text-neutral-900 dark:text-neutral-100", children: review.reviewer_name }), _jsx(StatusBadge, { status: review.status }), review.verified_purchase && (_jsxs("span", { className: "inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400", children: [_jsx(Icon, { name: "verified", size: 14 }), " Verified"] }))] }), _jsx("div", { className: "text-sm text-neutral-500 dark:text-neutral-400", children: review.reviewer_email }), _jsx("div", { className: "mt-0.5 text-xs text-neutral-400 dark:text-neutral-500", children: new Date(review.created_at).toLocaleDateString('en-US', {
+                                                year: 'numeric', month: 'long', day: 'numeric',
+                                            }) })] }), _jsx(StarDisplay, { rating: review.rating, size: "md" })] }), _jsxs("div", { className: "rounded-xl bg-neutral-50 px-4 py-3 text-sm dark:bg-neutral-800/60", children: [_jsx("span", { className: "text-neutral-500 dark:text-neutral-400", children: "Product: " }), _jsx("span", { className: "font-medium text-neutral-800 dark:text-neutral-200", children: review.product_title ?? review.product_id })] }), review.title && (_jsx("div", { className: "font-semibold text-neutral-900 dark:text-neutral-100", children: review.title })), _jsx("p", { className: "leading-relaxed text-neutral-700 dark:text-neutral-300", children: review.body }), review.media?.length > 0 && (_jsxs("div", { children: [_jsxs("div", { className: "mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300", children: ["Attachments (", review.media.length, ")"] }), _jsx("div", { className: "flex flex-wrap gap-3", children: review.media.map((m) => (_jsx("button", { onClick: () => setLightbox(m.url), className: "h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-neutral-200 transition hover:opacity-80 dark:border-neutral-700", children: m.type === 'image' ? (_jsx("img", { src: m.url, alt: "", className: "h-full w-full object-cover" })) : (_jsx("video", { src: m.thumbnail_url ?? m.url, className: "h-full w-full object-cover", muted: true })) }, m.id))) })] })), review.reply && (_jsxs("div", { className: "rounded-r-xl border-l-2 border-brand-500 bg-brand-50/50 px-4 py-3 dark:bg-brand-500/10", children: [_jsx("div", { className: "mb-1 text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400", children: "Store Response" }), _jsx("p", { className: "text-sm text-neutral-700 dark:text-neutral-300", children: review.reply.body })] })), _jsxs("div", { children: [_jsx("label", { className: "label", children: review.reply ? 'Update Reply' : 'Post a Reply' }), _jsx("textarea", { value: replyText, onChange: (e) => setReplyText(e.target.value), placeholder: "Write your response to this review\u2026", rows: 3, className: "input resize-none" }), _jsx("button", { onClick: handleReply, disabled: !replyText.trim() || upsertReply.isPending, className: "btn-primary mt-2", children: upsertReply.isPending ? 'Saving…' : 'Save Reply' })] }), _jsxs("div", { className: "flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800", children: [review.status !== 'published' && (_jsxs("button", { onClick: () => handleStatus('published'), disabled: updateStatus.isPending, className: "inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50", children: [_jsx(Icon, { name: "check", size: 16 }), " Publish"] })), review.status !== 'rejected' && (_jsxs("button", { onClick: () => handleStatus('rejected'), disabled: updateStatus.isPending, className: "inline-flex items-center gap-1.5 rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20", children: [_jsx(Icon, { name: "x", size: 16 }), " Reject"] })), review.status !== 'pending' && (_jsxs("button", { onClick: () => handleStatus('pending'), disabled: updateStatus.isPending, className: "inline-flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700", children: [_jsx(Icon, { name: "refresh", size: 16 }), " Reset to Pending"] })), _jsxs("button", { onClick: handleDelete, className: "ml-auto inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-rose-600 transition hover:text-rose-700", children: [_jsx(Icon, { name: "trash", size: 16 }), " Delete"] })] })] })) : null }), lightbox && (_jsxs("div", { className: "fixed inset-0 z-[60] flex items-center justify-center bg-neutral-900/90 p-4 animate-fade-in", onClick: () => setLightbox(null), children: [_jsx("img", { src: lightbox, alt: "Review media", className: "max-h-full max-w-full rounded-xl object-contain", onClick: (e) => e.stopPropagation() }), _jsx("button", { onClick: () => setLightbox(null), "aria-label": "Close", className: "absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20", children: _jsx(Icon, { name: "x", size: 20 }) })] }))] }));
+}
+//# sourceMappingURL=ReviewDetailModal.js.map

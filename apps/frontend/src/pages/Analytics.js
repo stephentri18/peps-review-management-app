@@ -1,0 +1,34 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState } from 'react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, } from 'recharts';
+import { useOverviewStats, useVolumeData, useStoreStats, useRatingDistribution, } from '../hooks/useAnalytics.js';
+import { Spinner } from '../components/ui/Spinner.js';
+import { useThemeStore } from '../store/themeStore.js';
+const RATING_COLORS = ['#f43f5e', '#fb923c', '#facc15', '#a3e635', '#34d399'];
+export function Analytics() {
+    const [interval, setInterval] = useState('day');
+    const [days, setDays] = useState(30);
+    const isDark = useThemeStore((s) => s.theme === 'dark');
+    const gridStroke = isDark ? '#27272a' : '#f1f1f4';
+    const cursorStroke = isDark ? '#3f3f46' : '#e5e7eb';
+    const tooltipStyle = {
+        borderRadius: 12,
+        fontSize: 12,
+        border: `1px solid ${isDark ? '#3f3f46' : '#e5e7eb'}`,
+        background: isDark ? '#18181b' : '#ffffff',
+        color: isDark ? '#e5e5e5' : '#171717',
+        boxShadow: '0 4px 12px -2px rgb(15 23 42 / 0.12)',
+    };
+    useOverviewStats();
+    const { data: volume } = useVolumeData({ interval, days });
+    const { data: stores } = useStoreStats();
+    const { data: ratings } = useRatingDistribution();
+    return (_jsxs("div", { className: "mx-auto max-w-7xl space-y-6 p-6 lg:p-10", children: [_jsxs("div", { children: [_jsx("h1", { className: "page-title", children: "Analytics" }), _jsx("p", { className: "page-subtitle", children: "Review trends and performance metrics" })] }), _jsxs("div", { className: "card p-6", children: [_jsxs("div", { className: "mb-6 flex flex-wrap items-center justify-between gap-3", children: [_jsx("h2", { className: "font-semibold text-neutral-900 dark:text-neutral-50", children: "Review Volume" }), _jsxs("div", { className: "flex items-center gap-2", children: [_jsx("div", { className: "inline-flex rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800", children: ['day', 'week', 'month'].map((i) => (_jsx("button", { onClick: () => setInterval(i), className: `rounded-lg px-3 py-1.5 text-xs font-medium transition ${interval === i
+                                                ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-neutral-50'
+                                                : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100'}`, children: i.charAt(0).toUpperCase() + i.slice(1) }, i))) }), _jsxs("select", { value: days, onChange: (e) => setDays(Number(e.target.value)), className: "input w-auto py-1.5 text-xs", children: [_jsx("option", { value: 7, children: "7 days" }), _jsx("option", { value: 30, children: "30 days" }), _jsx("option", { value: 90, children: "90 days" })] })] })] }), !volume ? (_jsx("div", { className: "flex justify-center py-16", children: _jsx(Spinner, {}) })) : (_jsx(ResponsiveContainer, { width: "100%", height: 280, children: _jsxs(LineChart, { data: volume.data, margin: { top: 4, right: 8, left: -16, bottom: 0 }, children: [_jsx("defs", { children: _jsxs("linearGradient", { id: "volumeStroke", x1: "0", y1: "0", x2: "0", y2: "1", children: [_jsx("stop", { offset: "0%", stopColor: "#4f46e5" }), _jsx("stop", { offset: "100%", stopColor: "#818cf8" })] }) }), _jsx(CartesianGrid, { strokeDasharray: "3 3", stroke: gridStroke, vertical: false }), _jsx(XAxis, { dataKey: "date", tick: { fontSize: 11, fill: '#9ca3af' }, tickLine: false, axisLine: false }), _jsx(YAxis, { tick: { fontSize: 11, fill: '#9ca3af' }, tickLine: false, axisLine: false, allowDecimals: false }), _jsx(Tooltip, { contentStyle: tooltipStyle, cursor: { stroke: cursorStroke, strokeWidth: 1 } }), _jsx(Line, { type: "monotone", dataKey: "count", stroke: "url(#volumeStroke)", strokeWidth: 2.5, dot: false, activeDot: { r: 5, fill: '#4f46e5', strokeWidth: 0 } })] }) }))] }), _jsxs("div", { className: "grid grid-cols-1 gap-6 lg:grid-cols-2", children: [_jsxs("div", { className: "card p-6", children: [_jsx("h2", { className: "mb-6 font-semibold text-neutral-900 dark:text-neutral-50", children: "Rating Distribution" }), !ratings ? (_jsx("div", { className: "flex justify-center py-16", children: _jsx(Spinner, {}) })) : (_jsx(ResponsiveContainer, { width: "100%", height: 220, children: _jsxs(BarChart, { data: ratings, layout: "vertical", margin: { left: -8 }, children: [_jsx(XAxis, { type: "number", tick: { fontSize: 11, fill: '#9ca3af' }, tickLine: false, axisLine: false }), _jsx(YAxis, { dataKey: "rating", type: "category", tick: { fontSize: 11, fill: '#9ca3af' }, tickLine: false, axisLine: false, tickFormatter: (v) => `${v}★` }), _jsx(Tooltip, { contentStyle: tooltipStyle, cursor: { fill: isDark ? '#27272a' : '#f8fafc' }, formatter: (val) => [`${val} reviews`, 'Count'] }), _jsx(Bar, { dataKey: "count", radius: [0, 6, 6, 0], barSize: 18, children: ratings.map((_entry, index) => (_jsx(Cell, { fill: RATING_COLORS[index] ?? '#94a3b8' }, index))) })] }) }))] }), _jsxs("div", { className: "card p-6", children: [_jsx("h2", { className: "mb-4 font-semibold text-neutral-900 dark:text-neutral-50", children: "Stores by Volume" }), !stores ? (_jsx("div", { className: "flex justify-center py-16", children: _jsx(Spinner, {}) })) : (_jsx("div", { className: "scrollbar-thin max-h-64 space-y-3 overflow-y-auto pr-1", children: stores.map((s) => (_jsxs("div", { className: "flex items-center gap-3", children: [_jsxs("div", { className: "min-w-0 flex-1", children: [_jsx("div", { className: "truncate text-sm font-medium text-neutral-900 dark:text-neutral-100", children: s.store_name }), _jsx("div", { className: "text-xs text-neutral-400 dark:text-neutral-500", children: s.shop_domain })] }), _jsx("div", { className: "w-20", children: _jsx("div", { className: "h-2 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800", children: _jsx("div", { className: "h-full rounded-full bg-brand-500", style: {
+                                                        width: `${stores[0]?.total
+                                                            ? Math.round((s.total / stores[0].total) * 100)
+                                                            : 0}%`,
+                                                    } }) }) }), _jsxs("div", { className: "w-12 flex-shrink-0 text-right", children: [_jsx("div", { className: "text-sm font-semibold text-neutral-800 dark:text-neutral-200", children: s.total }), _jsxs("div", { className: "text-xs text-neutral-400 dark:text-neutral-500", children: [s.average_rating.toFixed(1), " \u2605"] })] })] }, s.store_id))) }))] })] })] }));
+}
+//# sourceMappingURL=Analytics.js.map

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useStores, useUpdateWidgetSettings } from '../hooks/useStores.js';
 import { storesApi } from '../api/stores.js';
 import { Spinner } from '../components/ui/Spinner.js';
+import { Icon }    from '../components/ui/Icon.js';
 import type { WidgetSettings } from '@reviews/types';
 
 export function Settings() {
@@ -10,6 +11,7 @@ export function Settings() {
   const [settings, setSettings]                     = useState<WidgetSettings | null>(null);
   const [loadingSettings, setLoadingSettings]       = useState(false);
   const [saved, setSaved]                           = useState(false);
+  const [snippetCopied, setSnippetCopied]           = useState(false);
 
   const updateSettings = useUpdateWidgetSettings();
 
@@ -51,6 +53,12 @@ export function Settings() {
     setSettings((prev) => prev ? { ...prev, [key]: val } : prev);
   };
 
+  const copySnippet = () => {
+    navigator.clipboard.writeText(widgetSnippet);
+    setSnippetCopied(true);
+    setTimeout(() => setSnippetCopied(false), 2000);
+  };
+
   const widgetSnippet = selectedStoreId && stores
     ? `<div
   id="reviews-widget"
@@ -68,20 +76,20 @@ export function Settings() {
     : '';
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="mx-auto max-w-3xl p-6 lg:p-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Widget Settings</h1>
-        <p className="text-gray-500 text-sm mt-0.5">Configure the review widget per store</p>
+        <h1 className="page-title">Widget Settings</h1>
+        <p className="page-subtitle">Configure the review widget per store</p>
       </div>
 
       {/* Store selector */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Store</label>
+        <label className="label">Store</label>
         {storesLoading ? <Spinner size="sm" /> : (
           <select
             value={selectedStoreId}
             onChange={(e) => setSelectedStoreId(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-72 focus:outline-none focus:ring-2 focus:ring-slate-800"
+            className="input w-full sm:w-72"
           >
             {stores?.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
@@ -91,33 +99,32 @@ export function Settings() {
       </div>
 
       {loadingSettings ? (
-        <div className="flex justify-center py-20"><Spinner size="lg" /></div>
+        <div className="flex justify-center py-24"><Spinner size="lg" /></div>
       ) : settings ? (
         <div className="space-y-6">
           {/* Settings form */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-
+          <div className="card divide-y divide-neutral-100 p-0 dark:divide-neutral-800">
             {/* Theme color */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 p-5">
               <div>
-                <div className="text-sm font-medium text-gray-900">Theme Color</div>
-                <div className="text-xs text-gray-500">Applied to buttons and accents in the widget</div>
+                <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Theme Color</div>
+                <div className="text-xs text-neutral-500 dark:text-neutral-400">Applied to buttons and accents in the widget</div>
               </div>
               <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full border border-gray-300 flex-shrink-0"
+                <code className="text-xs text-neutral-400 dark:text-neutral-500">{settings.theme_color}</code>
+                <label
+                  className="h-9 w-9 cursor-pointer rounded-xl border border-neutral-200 shadow-sm dark:border-neutral-700"
                   style={{ background: settings.theme_color }}
-                />
-                <input
-                  type="color"
-                  value={settings.theme_color}
-                  onChange={(e) => set('theme_color', e.target.value)}
-                  className="w-10 h-8 rounded cursor-pointer border border-gray-300"
-                />
+                >
+                  <input
+                    type="color"
+                    value={settings.theme_color}
+                    onChange={(e) => set('theme_color', e.target.value)}
+                    className="h-full w-full cursor-pointer opacity-0"
+                  />
+                </label>
               </div>
             </div>
-
-            <hr />
 
             {/* Toggles */}
             {([
@@ -126,52 +133,49 @@ export function Settings() {
               { key: 'show_verified_badge',  label: 'Show verified badge',   desc: 'Display "Verified Purchase" badge on eligible reviews' },
               { key: 'allow_video',          label: 'Allow video uploads',   desc: 'Customers can attach videos to their reviews' },
             ] as const).map(({ key, label, desc }) => (
-              <div key={key} className="flex items-center justify-between">
+              <div key={key} className="flex items-center justify-between gap-4 p-5">
                 <div>
-                  <div className="text-sm font-medium text-gray-900">{label}</div>
-                  <div className="text-xs text-gray-500">{desc}</div>
+                  <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{label}</div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">{desc}</div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => set(key, !settings[key])}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${
-                    settings[key] ? 'bg-slate-800' : 'bg-gray-300'
+                  role="switch"
+                  aria-checked={settings[key]}
+                  className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
+                    settings[key] ? 'bg-brand-600' : 'bg-neutral-300 dark:bg-neutral-700'
                   }`}
                 >
-                  <span className={`absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full shadow transition-transform ${
+                  <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
                     settings[key] ? 'translate-x-5' : 'translate-x-0'
                   }`} />
                 </button>
               </div>
             ))}
 
-            <hr />
-
             {/* Number inputs */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid gap-6 p-5 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-1">
-                  Max Media Per Review
-                </label>
+                <label className="label">Max Media Per Review</label>
                 <input
                   type="number"
                   min={0}
                   max={10}
                   value={settings.max_media_per_review}
                   onChange={(e) => set('max_media_per_review', Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800"
+                  className="input"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-1">
-                  Reviews Per Page
-                </label>
+                <label className="label">Reviews Per Page</label>
                 <input
                   type="number"
                   min={1}
                   max={50}
                   value={settings.reviews_per_page}
                   onChange={(e) => set('reviews_per_page', Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-800"
+                  className="input"
                 />
               </div>
             </div>
@@ -179,30 +183,30 @@ export function Settings() {
 
           {/* Save button */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleSave}
-              disabled={updateSettings.isPending}
-              className="bg-slate-900 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-50 transition-colors"
-            >
-              {updateSettings.isPending ? 'Saving...' : 'Save Settings'}
+            <button onClick={handleSave} disabled={updateSettings.isPending} className="btn-primary">
+              {updateSettings.isPending ? 'Saving…' : 'Save Settings'}
             </button>
             {saved && (
-              <span className="text-sm text-green-600 font-medium">✓ Settings saved</span>
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
+                <Icon name="check" size={16} /> Settings saved
+              </span>
             )}
           </div>
 
           {/* Widget snippet */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-900 text-sm">Shopify Embed Snippet</h3>
+          <div className="card p-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Shopify Embed Snippet</h3>
               <button
-                onClick={() => navigator.clipboard.writeText(widgetSnippet)}
-                className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                onClick={copySnippet}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-600 transition hover:text-brand-700"
               >
-                Copy Snippet
+                {snippetCopied
+                  ? <><Icon name="check" size={13} /> Copied</>
+                  : <><Icon name="copy" size={13} /> Copy Snippet</>}
               </button>
             </div>
-            <pre className="bg-gray-50 rounded-lg p-4 text-xs overflow-x-auto text-gray-700 leading-relaxed">
+            <pre className="scrollbar-thin overflow-x-auto rounded-xl bg-neutral-900 p-4 text-xs leading-relaxed text-neutral-200 dark:bg-neutral-950 dark:ring-1 dark:ring-neutral-800">
               {widgetSnippet}
             </pre>
           </div>

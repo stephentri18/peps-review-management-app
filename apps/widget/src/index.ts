@@ -5,6 +5,14 @@ import { staticStarsHtml } from './utils.js';
 import { createReviewsList } from './ui/list.js';
 import { createReviewForm } from './ui/form.js';
 
+function hexToRgb(hex: string): string {
+  const h = hex.replace('#', '').trim();
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+  const n = parseInt(full, 16);
+  if (full.length !== 6 || Number.isNaN(n)) return '17, 24, 39';
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+}
+
 (function () {
   const host = document.getElementById('reviews-widget');
   if (!host) return;
@@ -35,9 +43,11 @@ import { createReviewForm } from './ui/form.js';
   styleEl.textContent = styles;
   shadow.appendChild(styleEl);
 
-  // Override --rv-primary with configured theme color
+  // Override --rv-primary with configured theme color (plus an RGB triplet so
+  // the stylesheet can derive soft tints / focus rings via rgba()).
   const themeStyle = document.createElement('style');
-  themeStyle.textContent = `:host { --rv-primary: ${config.themeColor}; }`;
+  themeStyle.textContent =
+    `:host { --rv-primary: ${config.themeColor}; --rv-primary-rgb: ${hexToRgb(config.themeColor)}; }`;
   shadow.appendChild(themeStyle);
 
   // ── Widget root ───────────────────────────────────────────────────
@@ -48,7 +58,7 @@ import { createReviewForm } from './ui/form.js';
   // ── Aggregate rating section ──────────────────────────────────────
   const aggregateEl = document.createElement('div');
   aggregateEl.className = 'rv-aggregate';
-  aggregateEl.innerHTML = `<div style="color:var(--rv-text-muted);padding:8px 0">Loading...</div>`;
+  aggregateEl.innerHTML = `<div class="rv-spinner" style="margin:8px auto"></div>`;
   widget.appendChild(aggregateEl);
 
   fetchAggregate(config).then((agg) => {

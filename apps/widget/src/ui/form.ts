@@ -2,6 +2,7 @@ import type { WidgetConfig, UploadedMedia } from '../types.js';
 import { submitReview } from '../api.js';
 import { uploadFile } from '../upload.js';
 import { createInteractiveStars } from './stars.js';
+import { icons } from './icons.js';
 
 interface FormState {
   open: boolean;
@@ -58,7 +59,7 @@ export function createReviewForm(
     if (!state.open) {
       const btn = document.createElement('button');
       btn.className = 'rv-btn rv-btn--primary';
-      btn.textContent = '✏️  Write a Review';
+      btn.innerHTML = `${icons.pencil(16)}<span>Write a Review</span>`;
       btn.addEventListener('click', () => { state.open = true; render(); });
       container.appendChild(btn);
       return;
@@ -69,7 +70,7 @@ export function createReviewForm(
       container.innerHTML = `
         <div class="rv-form">
           <div class="rv-form__success">
-            <div class="rv-form__success-icon">🎉</div>
+            <div class="rv-form__success-icon">${icons.check(28)}</div>
             <div class="rv-form__success-title">Thank you for your review!</div>
             <div class="rv-form__success-text">
               Your review has been submitted and is pending approval.
@@ -88,7 +89,7 @@ export function createReviewForm(
     // Error banner
     if (state.submitError) {
       form.insertAdjacentHTML('beforeend', `
-        <div class="rv-form__error-banner">${state.submitError}</div>
+        <div class="rv-form__error-banner">${icons.alert(15)}<span>${state.submitError}</span></div>
       `);
     }
 
@@ -283,7 +284,7 @@ fileInput.style.cssText = 'position:absolute;opacity:0;width:1px;height:1px;over
 
 const triggerLabel = document.createElement('label');
 triggerLabel.className = 'rv-upload__trigger';
-triggerLabel.innerHTML = `📎 Add ${config.allowVideo ? 'Media' : 'Photos'}`;
+triggerLabel.innerHTML = `${icons.paperclip(15)} Add ${config.allowVideo ? 'Media' : 'Photos'}`;
 
 const isDisabled = state.media.length >= config.maxMedia || state.uploading;
 if (isDisabled) {
@@ -337,7 +338,7 @@ btnRow.appendChild(hint);
 
       const removeBtn = document.createElement('button');
       removeBtn.className = 'rv-upload__remove';
-      removeBtn.innerHTML = '✕';
+      removeBtn.innerHTML = icons.x(13);
       removeBtn.setAttribute('aria-label', 'Remove file');
       removeBtn.addEventListener('click', () => {
         state.media.splice(index, 1);

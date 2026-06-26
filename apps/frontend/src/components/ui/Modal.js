@@ -1,0 +1,24 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useEffect } from 'react';
+import { Icon } from './Icon.js';
+export function Modal({ open, onClose, title, children, size = 'lg' }) {
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key === 'Escape')
+                onClose();
+        };
+        if (open) {
+            document.addEventListener('keydown', handler);
+            document.body.style.overflow = 'hidden';
+        }
+        return () => {
+            document.removeEventListener('keydown', handler);
+            document.body.style.overflow = '';
+        };
+    }, [open, onClose]);
+    if (!open)
+        return null;
+    const widthCls = { md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size];
+    return (_jsx("div", { className: "fixed inset-0 z-50 flex items-end justify-center bg-neutral-900/40 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4", onClick: onClose, children: _jsxs("div", { className: `flex max-h-[92vh] w-full flex-col rounded-t-2xl border border-neutral-200 bg-white shadow-lg animate-scale-in dark:border-neutral-800 dark:bg-neutral-900 sm:rounded-2xl ${widthCls}`, onClick: (e) => e.stopPropagation(), children: [_jsxs("div", { className: "flex items-center justify-between border-b border-neutral-100 px-6 py-4 dark:border-neutral-800", children: [_jsx("h2", { className: "text-base font-semibold text-neutral-900 dark:text-neutral-50", children: title }), _jsx("button", { onClick: onClose, "aria-label": "Close", className: "flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200", children: _jsx(Icon, { name: "x", size: 18 }) })] }), _jsx("div", { className: "scrollbar-thin flex-1 overflow-y-auto px-6 py-5", children: children })] }) }));
+}
+//# sourceMappingURL=Modal.js.map
