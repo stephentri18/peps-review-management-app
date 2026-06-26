@@ -1,0 +1,77 @@
+databases:
+  - name: reviews-db
+    plan: free
+    databaseName: reviews
+    user: reviews
+
+services:
+  # ── Backend API (Express) ─────────────────────────────────────────
+  - type: web
+    name: reviews-backend
+    runtime: node
+    plan: free
+    # Install from the repo root so pnpm workspace links resolve,
+    # build the backend, then run the (idempotent) migration + seed.
+    buildCommand: >-
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter backend build &&
+      pnpm --filter backend migrate &&
+      pnpm --filter backend seed
+    startCommand: pnpm --filter backend start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: reviews-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true          # Render generates a long secure value (>32 chars)
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false                  # paste in dashboard
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false                  # set to the frontend URL after first deploy
+
+  # ── Admin frontend (Vite SPA, static) ─────────────────────────────
+  - type: web
+    name: reviews-frontend
+    runtime: static
+    buildCommand: >-
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter frontend build
+    staticPublishPath: apps/frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false                  # set to the backend URL, e.g. https://reviews-backend.onrender.com
+    routes:
+      - type: rewrite                # SPA fallback so react-router deep links work
+        source: /*
+        destination: /index.html
+
+  # ── Embeddable widget (esbuild bundle, static) ────────────────────
+  - type: web
+    name: reviews-widget
+    runtime: static
+    # API_BASE is baked into the bundle at build time by esbuild.
+    buildCommand: >-
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter widget build
+    staticPublishPath: apps/widget/dist
+    envVars:
+      - key: API_BASE
+        sync: false                  # set to the backend URL, same as VITE_API_BASE_URL
+    headers:
+      # Allow the bundle to be loaded cross-origin from any Shopify storefront.
+      - path: /*
+        name: Access-Control-Allow-Origin
+        value: "*"
