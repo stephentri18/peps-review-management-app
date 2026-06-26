@@ -190,6 +190,7 @@ export function Reviews() {
                     />
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Reviewer</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Product</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Review</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Rating</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Status</th>
@@ -215,6 +216,16 @@ export function Reviews() {
                     <td className="px-4 py-3">
                       <div className="font-medium text-neutral-900 dark:text-neutral-100">{review.reviewer_name}</div>
                       <div className="text-xs text-neutral-400 dark:text-neutral-500">{review.reviewer_email}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="max-w-[12rem] truncate font-medium text-neutral-700 dark:text-neutral-300">
+                        {review.product_title || review.product_handle || review.product_id}
+                      </div>
+                      {review.product_title && review.product_handle && (
+                        <div className="max-w-[12rem] truncate text-xs text-neutral-400 dark:text-neutral-500">
+                          {review.product_handle}
+                        </div>
+                      )}
                     </td>
                     <td className="max-w-xs px-4 py-3">
                       {review.title && (

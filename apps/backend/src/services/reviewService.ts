@@ -36,9 +36,12 @@ export const reviewService = {
       FROM widget_settings WHERE store_id = ${storeId}
     `;
 
+    // 5-star reviews auto-publish; 1–4 star reviews wait for moderation.
+    // The store's auto_approve setting still publishes everything when enabled.
     const autoApprove = settings?.auto_approve ?? false;
-    const status: ReviewStatus = autoApprove ? 'published' : 'pending';
-    const publishedAt = autoApprove ? new Date() : null;
+    const publish = autoApprove || data.rating === 5;
+    const status: ReviewStatus = publish ? 'published' : 'pending';
+    const publishedAt = publish ? new Date() : null;
 
     const [review] = await sql<Review[]>`
       INSERT INTO reviews (
