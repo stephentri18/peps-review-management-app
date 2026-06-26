@@ -105,7 +105,6 @@ router.post('/:id/reply', jwtAuth, async (req: Request, res: Response) => {
   }
   const reply = await reviewService.upsertReply(
     req.params.id!,
-    req.admin!.id,
     parsed.data.body
   );
   res.json({ reply });

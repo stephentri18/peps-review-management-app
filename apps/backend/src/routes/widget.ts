@@ -3,12 +3,19 @@ import { z } from 'zod';
 import { apiKeyAuth } from '../middleware/apiKeyAuth.js';
 import { readLimiter } from '../middleware/rateLimiter.js';
 import { reviewService } from '../services/reviewService.js';
+import { storeService } from '../services/storeService.js';
 import { sql } from '../config/db.js';
 import express from 'express';
 
 const router: express.Router = Router();
 
 router.use(apiKeyAuth, readLimiter);
+
+// Public widget settings for the authenticated store (drives widget appearance/behaviour)
+router.get('/settings', async (req: Request, res: Response) => {
+  const settings = await storeService.getWidgetSettings(req.store!.id);
+  res.json({ settings });
+});
 
 // Published reviews for a product
 const querySchema = z.object({

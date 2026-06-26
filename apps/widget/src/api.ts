@@ -1,5 +1,14 @@
-import type { ReviewsListResponse, AggregateRating } from '@reviews/types';
+import type { ReviewsListResponse, AggregateRating, WidgetSettings } from '@reviews/types';
 import type { WidgetConfig, UploadedMedia } from './types.js';
+
+export async function fetchSettings(config: WidgetConfig): Promise<WidgetSettings | null> {
+  const res = await fetch(`${config.apiBase}/api/widget/settings`, {
+    headers: { 'x-api-key': config.apiKey },
+  });
+  if (!res.ok) return null;
+  const data = (await res.json()) as { settings: WidgetSettings | null };
+  return data.settings;
+}
 
 export async function fetchReviews(
   config: WidgetConfig,

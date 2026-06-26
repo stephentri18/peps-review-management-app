@@ -9,6 +9,7 @@ export interface WidgetConfig {
   allowVideo: boolean;
   maxMedia: number;
   reviewsPerPage: number;
+  showVerifiedBadge: boolean;
 }
 
 export interface UploadedMedia {

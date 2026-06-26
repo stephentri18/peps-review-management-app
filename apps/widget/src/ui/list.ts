@@ -133,7 +133,7 @@ function createReviewCard(review: ReviewWithMedia, config: WidgetConfig): HTMLEl
   info.innerHTML = `
     <span class="rv-review__name">${escHtml(review.reviewer_name)}</span>
     <span class="rv-review__date">${formatDate(review.created_at)}</span>
-    ${review.verified_purchase ? `<span class="rv-review__verified">${icons.check(13)} Verified Purchase</span>` : ''}
+    ${config.showVerifiedBadge && review.verified_purchase ? `<span class="rv-review__verified">${icons.check(13)} Verified Purchase</span>` : ''}
   `;
 
   ident.appendChild(avatar);

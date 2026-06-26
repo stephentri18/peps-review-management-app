@@ -21,6 +21,7 @@ interface ListQuery {
   per_page: number;
   status?: ReviewStatus;
   store_id?: string;
+  product_id?: string;
   rating?: number;
   search?: string;
   sort: 'created_at' | 'rating' | 'helpful_count';
@@ -91,9 +92,10 @@ export const reviewService = {
 
   async list(q: ListQuery): Promise<ReviewsListResponse> {
     // Build conditional fragments — postgres.js handles them safely
-    const statusFilter = q.status   ? sql`AND r.status = ${q.status}`     : sql``;
-    const storeFilter  = q.store_id ? sql`AND r.store_id = ${q.store_id}` : sql``;
-    const ratingFilter = q.rating   ? sql`AND r.rating = ${q.rating}`     : sql``;
+    const statusFilter  = q.status     ? sql`AND r.status = ${q.status}`         : sql``;
+    const storeFilter   = q.store_id   ? sql`AND r.store_id = ${q.store_id}`     : sql``;
+    const productFilter = q.product_id ? sql`AND r.product_id = ${q.product_id}` : sql``;
+    const ratingFilter  = q.rating     ? sql`AND r.rating = ${q.rating}`         : sql``;
     const searchFilter = q.search
       ? sql`AND (
           r.body ILIKE ${'%' + q.search + '%'} OR
@@ -107,6 +109,7 @@ export const reviewService = {
       WHERE 1=1
         ${statusFilter}
         ${storeFilter}
+        ${productFilter}
         ${ratingFilter}
         ${searchFilter}
     `;
@@ -152,6 +155,7 @@ export const reviewService = {
       WHERE 1=1
         ${statusFilter}
         ${storeFilter}
+        ${productFilter}
         ${ratingFilter}
         ${searchFilter}
       GROUP BY r.id
@@ -215,10 +219,14 @@ export const reviewService = {
     return review!;
   },
 
-  async upsertReply(reviewId: string, storeId: string, body: string) {
+  async upsertReply(reviewId: string, body: string) {
+    // store_id is derived from the review itself — the admin is global, so its
+    // id is NOT a valid stores(id) and must never be written here.
     const [reply] = await sql`
       INSERT INTO review_replies (review_id, store_id, body)
-      VALUES (${reviewId}, ${storeId}, ${body})
+      SELECT ${reviewId}, r.store_id, ${body}
+      FROM reviews r
+      WHERE r.id = ${reviewId}
       ON CONFLICT (review_id)
       DO UPDATE SET body = ${body}, updated_at = NOW()
       RETURNING *

@@ -1,6 +1,6 @@
 import styles from './style.css';
 import type { WidgetConfig } from './types.js';
-import { fetchAggregate } from './api.js';
+import { fetchAggregate, fetchSettings } from './api.js';
 import { staticStarsHtml } from './utils.js';
 import { createReviewsList } from './ui/list.js';
 import { createReviewForm } from './ui/form.js';
@@ -13,21 +13,22 @@ function hexToRgb(hex: string): string {
   return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
 }
 
-(function () {
+(async function () {
   const host = document.getElementById('reviews-widget');
   if (!host) return;
 
   const config: WidgetConfig = {
-    apiKey:         host.dataset['apiKey']        ?? '',
-    productId:      host.dataset['productId']     ?? '',
-    productHandle:  host.dataset['productHandle'] ?? '',
-    productTitle:   host.dataset['productTitle']  ?? '',
-    apiBase:        process.env.API_BASE,
-    themeColor:     host.dataset['themeColor']    ?? '#000000',
-    requireEmail:   host.dataset['requireEmail']  !== 'false',
-    allowVideo:     host.dataset['allowVideo']    !== 'false',
-    maxMedia:       parseInt(host.dataset['maxMedia'] ?? '3', 10),
-    reviewsPerPage: parseInt(host.dataset['reviewsPerPage'] ?? '5', 10),
+    apiKey:            host.dataset['apiKey']        ?? '',
+    productId:         host.dataset['productId']     ?? '',
+    productHandle:     host.dataset['productHandle'] ?? '',
+    productTitle:      host.dataset['productTitle']  ?? '',
+    apiBase:           process.env.API_BASE,
+    themeColor:        host.dataset['themeColor']    ?? '#000000',
+    requireEmail:      host.dataset['requireEmail']  !== 'false',
+    allowVideo:        host.dataset['allowVideo']    !== 'false',
+    maxMedia:          parseInt(host.dataset['maxMedia'] ?? '3', 10),
+    reviewsPerPage:    parseInt(host.dataset['reviewsPerPage'] ?? '5', 10),
+    showVerifiedBadge: host.dataset['showVerifiedBadge'] !== 'false',
   };
 
   if (!config.apiKey || !config.productId) {
@@ -38,10 +39,22 @@ function hexToRgb(hex: string): string {
   // ── Shadow DOM ────────────────────────────────────────────────────
   const shadow = host.attachShadow({ mode: 'open' });
 
-  // Inject styles + set theme color CSS variable
+  // Inject styles
   const styleEl = document.createElement('style');
   styleEl.textContent = styles;
   shadow.appendChild(styleEl);
+
+  // Admin-configured widget settings are the source of truth; the data-*
+  // attributes act only as fallbacks (and carry the api-key / product id).
+  const settings = await fetchSettings(config).catch(() => null);
+  if (settings) {
+    config.themeColor        = settings.theme_color ?? config.themeColor;
+    config.requireEmail      = settings.require_email;
+    config.allowVideo        = settings.allow_video;
+    config.maxMedia          = settings.max_media_per_review;
+    config.reviewsPerPage    = settings.reviews_per_page;
+    config.showVerifiedBadge = settings.show_verified_badge;
+  }
 
   // Override --rv-primary with configured theme color (plus an RGB triplet so
   // the stylesheet can derive soft tints / focus rings via rgba()).
