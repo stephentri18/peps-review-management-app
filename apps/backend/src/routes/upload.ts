@@ -10,8 +10,11 @@ router.post('/sign', apiKeyAuth, (req: Request, res: Response) => {
   const timestamp = Math.round(Date.now() / 1000);
   const folder = `review_media/${req.store!.id}`;
 
+  // Sign only the params Cloudinary includes when validating an upload.
+  // resource_type/api_key/file/cloud_name/signature are excluded by Cloudinary,
+  // so signing resource_type here causes a signature mismatch (401).
   const signature = cloudinary.utils.api_sign_request(
-    { timestamp, folder, resource_type: 'auto' },
+    { timestamp, folder },
     env.CLOUDINARY_API_SECRET
   );
 
