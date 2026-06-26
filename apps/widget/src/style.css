@@ -244,6 +244,46 @@
 .rv-pagination { display: flex; align-items: center; justify-content: center; gap: 14px; padding-top: 24px; border-top: 1px solid var(--rv-border); margin-top: 8px; }
 .rv-pagination__info { font-size: 13px; color: var(--rv-text-muted); font-variant-numeric: tabular-nums; }
 
+/* ── Carousel ──────────────────────────────────────── */
+.rv-carousel { padding: 8px 0; }
+.rv-carousel__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.rv-carousel__title { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+.rv-carousel__nav { display: flex; gap: 8px; flex-shrink: 0; }
+.rv-carousel__btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--rv-border-strong); background: var(--rv-surface);
+  color: var(--rv-text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.rv-carousel__btn:hover { background: rgba(var(--rv-primary-rgb), 0.06); color: var(--rv-primary); border-color: var(--rv-primary); }
+.rv-carousel__btn:focus-visible { outline: none; box-shadow: var(--rv-ring); }
+
+.rv-carousel__viewport {
+  display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
+  scroll-behavior: smooth; padding: 4px; margin: -4px;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.rv-carousel__viewport::-webkit-scrollbar { display: none; }
+.rv-carousel__viewport:focus-visible { outline: none; }
+
+.rv-carousel__card {
+  flex: 0 0 min(86%, 340px); scroll-snap-align: start;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 22px; background: var(--rv-surface);
+  border: 1px solid var(--rv-border); border-radius: var(--rv-radius-md);
+  box-shadow: var(--rv-shadow);
+}
+.rv-carousel__cardtitle { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+.rv-carousel__quote {
+  color: var(--rv-text); line-height: 1.65; font-size: 14.5px; margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rv-carousel__foot { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 4px; }
+.rv-carousel__meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.rv-carousel__name { font-weight: 600; font-size: 13.5px; }
+.rv-carousel__sub { font-size: 12px; color: var(--rv-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 /* ── Lightbox ──────────────────────────────────────── */
 .rv-lightbox {
   position: fixed; inset: 0; background: rgba(10, 12, 16, 0.9);

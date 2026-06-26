@@ -26,6 +26,20 @@ export async function fetchReviews(
   return res.json() as Promise<ReviewsListResponse>;
 }
 
+export async function fetchFeatured(
+  config: WidgetConfig,
+  limit: number = 12
+): Promise<ReviewsListResponse> {
+  const url = new URL(`${config.apiBase}/api/widget/featured`);
+  url.searchParams.set('limit', String(limit));
+
+  const res = await fetch(url.toString(), {
+    headers: { 'x-api-key': config.apiKey },
+  });
+  if (!res.ok) throw new Error('Failed to fetch featured reviews');
+  return res.json() as Promise<ReviewsListResponse>;
+}
+
 export async function fetchAggregate(config: WidgetConfig): Promise<AggregateRating> {
   const url = new URL(`${config.apiBase}/api/widget/aggregate`);
   url.searchParams.set('product_id', config.productId);

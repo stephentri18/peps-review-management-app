@@ -21,7 +21,7 @@ router.get('/settings', async (req: Request, res: Response) => {
 const querySchema = z.object({
   product_id: z.string().min(1),
   page:       z.coerce.number().int().positive().default(1),
-  per_page:   z.coerce.number().int().min(1).max(20).default(5),
+  per_page:   z.coerce.number().int().min(1).max(50).default(5),
   sort:       z.enum(['created_at', 'rating', 'helpful_count']).default('created_at'),
   order:      z.enum(['asc', 'desc']).default('desc'),
 });
@@ -37,6 +37,30 @@ router.get('/reviews', async (req: Request, res: Response) => {
     ...parsed.data,
     status:   'published',
     store_id: req.store!.id,
+  });
+
+  res.json(result);
+});
+
+// Store-wide featured reviews (highest-rated, across all products) — for the carousel
+const featuredSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(30).default(12),
+});
+
+router.get('/featured', async (req: Request, res: Response) => {
+  const parsed = featuredSchema.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  const result = await reviewService.list({
+    status:   'published',
+    store_id: req.store!.id,
+    sort:     'rating',
+    order:    'desc',
+    page:     1,
+    per_page: parsed.data.limit,
   });
 
   res.json(result);

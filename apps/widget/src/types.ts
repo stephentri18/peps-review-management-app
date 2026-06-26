@@ -10,6 +10,7 @@ export interface WidgetConfig {
   maxMedia: number;
   reviewsPerPage: number;
   showVerifiedBadge: boolean;
+  carouselTitle: string;
 }
 
 export interface UploadedMedia {

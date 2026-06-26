@@ -1,0 +1,80 @@
+{%- comment -%}
+  Featured Reviews carousel section.
+  Add this file to your theme as `sections/featured-reviews.liquid`, then add the
+  "Featured Reviews" section to any page (home, product, etc.) via the theme editor.
+
+  Replace WIDGET_URL below with your deployed widget URL if it ever changes.
+{%- endcomment -%}
+
+<div class="featured-reviews" style="padding:{{ section.settings.padding_top }}px 20px {{ section.settings.padding_bottom }}px;">
+  <div style="max-width:{{ section.settings.max_width }}px;margin:0 auto;">
+    <div
+      class="reviews-widget"
+      data-layout="carousel"
+      data-api-key="{{ section.settings.api_key }}"
+      data-theme-color="{{ section.settings.theme_color }}"
+      data-carousel-title="{{ section.settings.heading | escape }}"
+    ></div>
+  </div>
+</div>
+
+<script src="https://peps-review-management-app-1.onrender.com/widget.js?v=5" defer></script>
+
+{% schema %}
+{
+  "name": "Featured Reviews",
+  "settings": [
+    {
+      "type": "text",
+      "id": "api_key",
+      "label": "Widget API Key",
+      "info": "Your store's rv_sk_… key (from the admin Settings page)."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What our customers say"
+    },
+    {
+      "type": "color",
+      "id": "theme_color",
+      "label": "Theme color",
+      "default": "#0b6b3a"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 600,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "default": 1000
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    { "name": "Featured Reviews" }
+  ]
+}
+{% endschema %}
