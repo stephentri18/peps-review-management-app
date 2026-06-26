@@ -116,9 +116,17 @@ function createReviewCard(review: ReviewWithMedia, config: WidgetConfig): HTMLEl
   const card = document.createElement('div');
   card.className = 'rv-review';
 
-  // Top row: name + stars
+  // Top row: avatar + name + stars
   const top = document.createElement('div');
   top.className = 'rv-review__top';
+
+  const ident = document.createElement('div');
+  ident.className = 'rv-review__ident';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'rv-review__avatar';
+  avatar.textContent = review.reviewer_name.trim()[0] ?? '?';
+  avatar.setAttribute('aria-hidden', 'true');
 
   const info = document.createElement('div');
   info.className = 'rv-review__info';
@@ -128,10 +136,13 @@ function createReviewCard(review: ReviewWithMedia, config: WidgetConfig): HTMLEl
     ${review.verified_purchase ? `<span class="rv-review__verified">${icons.check(13)} Verified Purchase</span>` : ''}
   `;
 
+  ident.appendChild(avatar);
+  ident.appendChild(info);
+
   const starsEl = document.createElement('div');
   starsEl.innerHTML = staticStarsHtml(review.rating);
 
-  top.appendChild(info);
+  top.appendChild(ident);
   top.appendChild(starsEl);
   card.appendChild(top);
 
