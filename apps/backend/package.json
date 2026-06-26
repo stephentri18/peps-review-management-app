@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsc",
+    "build": "tsc -b",
     "start": "node dist/app.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b",
     "migrate": "tsx src/scripts/migrate.ts",
     "seed": "tsx src/scripts/seed.ts"
   },

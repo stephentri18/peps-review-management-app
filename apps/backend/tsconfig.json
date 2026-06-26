@@ -10,6 +10,7 @@
       "@reviews/types": ["../../packages/types/src/index.ts"]
     }
   },
+  "references": [{ "path": "../../packages/types" }],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

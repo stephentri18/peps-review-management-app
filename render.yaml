@@ -13,7 +13,6 @@ services:
     # Install from the repo root so pnpm workspace links resolve,
     # build the backend, then run the (idempotent) migration + seed.
     buildCommand: >-
-      corepack enable &&
       pnpm install --frozen-lockfile &&
       pnpm --filter backend build &&
       pnpm --filter backend migrate &&
@@ -45,7 +44,6 @@ services:
     name: reviews-frontend
     runtime: static
     buildCommand: >-
-      corepack enable &&
       pnpm install --frozen-lockfile &&
       pnpm --filter frontend build
     staticPublishPath: apps/frontend/dist
@@ -63,7 +61,6 @@ services:
     runtime: static
     # API_BASE is baked into the bundle at build time by esbuild.
     buildCommand: >-
-      corepack enable &&
       pnpm install --frozen-lockfile &&
       pnpm --filter widget build
     staticPublishPath: apps/widget/dist
