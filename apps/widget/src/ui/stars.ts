@@ -8,39 +8,44 @@ export function createInteractiveStars(
   wrapper.setAttribute('aria-label', 'Select rating');
 
   let current = initialRating;
+  const stars: HTMLSpanElement[] = [];
 
-  const render = (hovered: number) => {
-    wrapper.innerHTML = '';
-    for (let i = 1; i <= 5; i++) {
-      const star = document.createElement('span');
-      const isOn = i <= (hovered || current);
+  function updateDisplay(hovered: number) {
+    stars.forEach((star, idx) => {
+      const isOn = idx + 1 <= (hovered || current);
       star.className = `rv-star${isOn ? ' rv-star--filled' : ''}`;
-      star.textContent = '★';
-      star.setAttribute('role', 'radio');
-      star.setAttribute('aria-checked', String(i === current));
-      star.setAttribute('aria-label', `${i} star${i !== 1 ? 's' : ''}`);
-      star.tabIndex = 0;
+    });
+  }
 
-      star.addEventListener('mouseenter', () => render(i));
-      star.addEventListener('mouseleave', () => render(0));
-      star.addEventListener('click', () => {
+  for (let i = 1; i <= 5; i++) {
+    const star = document.createElement('span');
+    star.className = `rv-star${i <= current ? ' rv-star--filled' : ''}`;
+    star.textContent = '★';
+    star.setAttribute('role', 'radio');
+    star.setAttribute('aria-label', `${i} star${i !== 1 ? 's' : ''}`);
+    star.tabIndex = 0;
+
+    star.addEventListener('mouseenter', () => updateDisplay(i));
+    star.addEventListener('mouseleave', () => updateDisplay(0));
+
+    star.addEventListener('click', () => {
+      current = i;
+      onChange(i);
+      updateDisplay(0);
+    });
+
+    star.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
         current = i;
         onChange(i);
-        render(0);
-      });
-      star.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          current = i;
-          onChange(i);
-          render(0);
-        }
-      });
+        updateDisplay(0);
+      }
+    });
 
-      wrapper.appendChild(star);
-    }
-  };
+    stars.push(star);
+    wrapper.appendChild(star);
+  }
 
-  render(0);
   return wrapper;
 }

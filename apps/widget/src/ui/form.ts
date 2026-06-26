@@ -274,30 +274,33 @@ function createUploadSection(
   const btnRow = document.createElement('div');
   btnRow.className = 'rv-upload__btn-row';
 
-  // File input (hidden)
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.className = 'rv-upload__input'; // display:none in CSS
-  fileInput.multiple = true;
-  fileInput.accept = config.allowVideo
-    ? 'image/*,video/*'
-    : 'image/*';
-  fileInput.style.display = 'none';
+  // File input — zero-dimension positioned, triggered via label (works in Shadow DOM)
+const fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.multiple = true;
+fileInput.accept = config.allowVideo ? 'image/*,video/*' : 'image/*';
+fileInput.style.cssText = 'position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;';
 
-  const triggerBtn = document.createElement('button');
-  triggerBtn.type = 'button';
-  triggerBtn.className = 'rv-upload__trigger';
-  triggerBtn.innerHTML = `📎 Add ${config.allowVideo ? 'Media' : 'Photos'}`;
-  triggerBtn.disabled = state.media.length >= config.maxMedia || state.uploading;
-  triggerBtn.addEventListener('click', () => fileInput.click());
+const triggerLabel = document.createElement('label');
+triggerLabel.className = 'rv-upload__trigger';
+triggerLabel.innerHTML = `📎 Add ${config.allowVideo ? 'Media' : 'Photos'}`;
 
-  const hint = document.createElement('span');
-  hint.className = 'rv-upload__hint';
-  hint.textContent = `Up to ${config.maxMedia} file${config.maxMedia !== 1 ? 's' : ''}`;
+const isDisabled = state.media.length >= config.maxMedia || state.uploading;
+if (isDisabled) {
+  triggerLabel.style.opacity = '0.5';
+  triggerLabel.style.pointerEvents = 'none';
+  triggerLabel.style.cursor = 'not-allowed';
+}
 
-  btnRow.appendChild(fileInput);
-  btnRow.appendChild(triggerBtn);
-  btnRow.appendChild(hint);
+// Label wraps the input — clicking label opens file picker natively
+triggerLabel.appendChild(fileInput);
+
+const hint = document.createElement('span');
+hint.className = 'rv-upload__hint';
+hint.textContent = `Up to ${config.maxMedia} file${config.maxMedia !== 1 ? 's' : ''}`;
+
+btnRow.appendChild(triggerLabel);
+btnRow.appendChild(hint);
   group.appendChild(btnRow);
 
   // Progress bar
@@ -339,7 +342,9 @@ function createUploadSection(
       removeBtn.addEventListener('click', () => {
         state.media.splice(index, 1);
         renderPreviews();
-        triggerBtn.disabled = state.media.length >= config.maxMedia;
+        const disabled = state.media.length >= config.maxMedia;
+triggerLabel.style.opacity = disabled ? '0.5' : '1';
+triggerLabel.style.pointerEvents = disabled ? 'none' : 'auto';
       });
 
       thumb.appendChild(removeBtn);
@@ -361,7 +366,9 @@ function createUploadSection(
     fileInput.value = '';
     state.uploading = true;
     progressBar.style.display = 'block';
-    triggerBtn.disabled = true;
+    const disabled = state.media.length >= config.maxMedia;
+triggerLabel.style.opacity = disabled ? '0.5' : '1';
+triggerLabel.style.pointerEvents = disabled ? 'none' : 'auto';
     rerender();
 
     for (const file of files) {
@@ -379,7 +386,6 @@ function createUploadSection(
     state.uploading = false;
     progressBar.style.display = 'none';
     progressFill.style.width = '0%';
-    triggerBtn.disabled = state.media.length >= config.maxMedia;
     rerender();
   });
 

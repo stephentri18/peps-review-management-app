@@ -33,8 +33,8 @@ const strictCors = cors({
 // ── CORS: open for widget routes (secured by API key instead) ────────
 const widgetCors = cors({
   origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-api-key'],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization'],
 });
 
 // ── Body parsing ────────────────────────────────────────────────────
