@@ -1,4 +1,4 @@
-import type { ReviewsListResponse, AggregateRating, WidgetSettings } from '@reviews/types';
+import type { ReviewsListResponse, AggregateRating, WidgetSettings, ReviewStatus } from '@reviews/types';
 import type { WidgetConfig, UploadedMedia } from './types.js';
 
 export async function fetchSettings(config: WidgetConfig): Promise<WidgetSettings | null> {
@@ -61,7 +61,7 @@ export async function submitReview(
     body: string;
     media?: UploadedMedia[];
   }
-): Promise<void> {
+): Promise<{ status: ReviewStatus }> {
   const res = await fetch(`${config.apiBase}/api/reviews`, {
     method: 'POST',
     headers: {
@@ -80,6 +80,9 @@ export async function submitReview(
     const err = await res.json().catch(() => ({})) as { error?: string };
     throw new Error(err.error ?? 'Submission failed');
   }
+
+  const out = (await res.json().catch(() => ({}))) as { review?: { status?: ReviewStatus } };
+  return { status: out.review?.status ?? 'pending' };
 }
 
 export async function getUploadSignature(config: WidgetConfig): Promise<{

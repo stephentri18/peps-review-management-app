@@ -16,6 +16,7 @@ interface FormState {
   uploadProgress: number;
   submitting: boolean;
   submitted: boolean;
+  published: boolean;
   submitError: string | null;
   errors: Partial<Record<'rating' | 'name' | 'email' | 'body', string>>;
 }
@@ -33,7 +34,7 @@ export function createReviewForm(
     name: '', email: '', title: '', body: '',
     media: [],
     uploading: false, uploadProgress: 0,
-    submitting: false, submitted: false,
+    submitting: false, submitted: false, published: false,
     submitError: null, errors: {},
   };
 
@@ -73,7 +74,9 @@ export function createReviewForm(
             <div class="rv-form__success-icon">${icons.check(28)}</div>
             <div class="rv-form__success-title">Thank you for your review!</div>
             <div class="rv-form__success-text">
-              Your review has been submitted and is pending approval.
+              ${state.published
+                ? 'Your review is now live. Thanks for sharing!'
+                : 'Your review has been submitted and is pending approval.'}
             </div>
           </div>
         </div>
@@ -189,7 +192,7 @@ export function createReviewForm(
       render();
 
       try {
-        await submitReview(config, {
+        const result = await submitReview(config, {
           reviewer_name:  state.name.trim(),
           reviewer_email: state.email.trim(),
           rating: state.rating,
@@ -198,6 +201,7 @@ export function createReviewForm(
           media: state.media.length ? state.media : undefined,
         });
         state.submitted = true;
+        state.published = result.status === 'published';
         onSubmitted();
       } catch (err) {
         state.submitError = err instanceof Error
