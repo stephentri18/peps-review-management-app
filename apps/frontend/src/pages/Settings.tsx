@@ -72,7 +72,7 @@ export function Settings() {
   data-max-media="${settings?.max_media_per_review ?? 3}"
   data-reviews-per-page="${settings?.reviews_per_page ?? 5}"
 ></div>
-<script src="https://reviews-cdn.yourdomain.com/widget.js" defer></script>`
+<script src="https://peps-review-management-app-1.onrender.com/widget.js" defer></script>`
     : '';
 
   return (
